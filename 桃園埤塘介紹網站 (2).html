@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>桃園埤塘巡禮</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f7f9f5;
+    --surface: #ffffff;
+    --border: #d8e4d0;
+    --text: #1a2a14;
+    --muted: #5a7a4a;
+    --accent: #3a7a3a;
+    --accent-light: #e8f4e8;
+    --tag-bg: #d4ead4;
+    --tag-text: #1e5a1e;
+    --radius: 14px;
+    --shadow: 0 2px 12px rgba(30,60,20,0.09);
+  }
+  body { font-family: 'Noto Sans TC', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 3rem 1.5rem 2.5rem; border-bottom: 1px solid var(--border); background: linear-gradient(160deg,#e8f4e0 0%,#f7f9f5 60%); }
+  .hero-eyebrow { font-size: 12px; letter-spacing: .15em; color: var(--muted); text-transform: uppercase; margin-bottom: .6rem; }
+  .hero-title { font-size: 2.4rem; font-weight: 700; color: var(--accent); line-height: 1.2; margin-bottom: .75rem; }
+  .hero-title span { color: var(--text); }
+  .hero-sub { font-size: 15px; color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.8; }
+
+  /* BREADCRUMB */
+  .breadcrumb { display: flex; align-items: center; gap: 8px; padding: 1rem 2rem; font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--surface); flex-wrap: wrap; }
+  .breadcrumb a { color: var(--accent); cursor: pointer; text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .breadcrumb .sep { color: var(--border); }
+
+  /* GRID SECTION */
+  .grid-section { padding: 2rem 2rem 3rem; max-width: 1100px; margin: 0 auto; }
+  .section-label { font-size: 13px; color: var(--muted); letter-spacing: .08em; margin-bottom: 1.25rem; text-transform: uppercase; }
+
+  /* 3-column fixed grid */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+  /* POND CARD */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: transform .18s, box-shadow .18s, border-color .18s; }
+  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--accent); }
+  .card-img { width: 100%; aspect-ratio: 4/3; overflow: hidden; background: var(--accent-light); display: flex; align-items: center; justify-content: center; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card-body { padding: 1rem 1.1rem 1.1rem; }
+  .card-name { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+  .card-desc { font-size: 12px; color: var(--muted); line-height: 1.65; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-tag { display: inline-block; font-size: 11px; color: var(--tag-text); background: var(--tag-bg); border-radius: 6px; padding: 2px 8px; }
+
+  /* GROUP CARD */
+  .group-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: transform .18s, box-shadow .18s, border-color .18s; }
+  .group-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--accent); }
+  .group-card-body { padding: 1.3rem 1.25rem; }
+  .group-num { display: inline-block; font-size: 11px; font-weight: 700; color: var(--tag-text); background: var(--tag-bg); border-radius: 6px; padding: 3px 9px; margin-bottom: .65rem; }
+  .group-members { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.65; margin-bottom: 10px; }
+  .group-hint { font-size: 12px; color: var(--muted); }
+
+  /* GROUP DETAIL PAGE */
+  .detail-page { max-width: 780px; margin: 0 auto; padding: 2rem 2rem 3rem; }
+  .detail-pond-tag { display: inline-block; font-size: 11px; color: var(--tag-text); background: var(--tag-bg); border-radius: 6px; padding: 3px 10px; margin-bottom: .75rem; }
+  .detail-title { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: .3rem; }
+  .detail-group-label { font-size: 14px; color: var(--muted); margin-bottom: 1.5rem; }
+  .detail-img { width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: var(--accent-light); display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; }
+  .detail-img img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-members-box { background: var(--accent-light); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 2rem; }
+  .detail-members-label { font-size: 12px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: .4rem; }
+  .detail-members-names { font-size: 15px; font-weight: 600; color: var(--text); }
+  .detail-intro-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+  .detail-intro-label { font-size: 12px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: .85rem; }
+  /* ========================================================
+     ↓↓↓ 介紹文字請填入各 .group-intro 的內容  ↓↓↓
+     ======================================================== */
+  .group-intro { font-size: 15px; color: #3a4a35; line-height: 1.95; white-space: pre-wrap; }
+  .intro-placeholder { font-size: 14px; color: #b0c0a8; font-style: italic; }
+  .link-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #fff; text-decoration: none; border-radius: 8px; padding: .65rem 1.4rem; font-size: 14px; font-weight: 600; margin-top: 1.25rem; transition: background .15s; }
+  .link-btn:hover { background: #2a5a2a; }
+  .link-btn svg { flex-shrink: 0; }
+
+  /* BACK BTN */
+  .back-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--accent); background: var(--accent-light); border: none; border-radius: 8px; padding: .5rem 1rem; cursor: pointer; font-family: inherit; margin-bottom: 1.5rem; }
+  .back-btn:hover { background: #d0e8d0; }
+
+  /* POND HEADER (second level) */
+  .pond-header { display: flex; align-items: flex-start; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
+  .pond-header-img { flex: 0 0 200px; max-width: 100%; border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; background: var(--accent-light); display: flex; align-items: center; justify-content: center; }
+  .pond-header-img img { width: 100%; height: 100%; object-fit: cover; }
+  .pond-header-info { flex: 1; min-width: 180px; }
+  .pond-header-name { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: .4rem; }
+  .pond-header-desc { font-size: 14px; color: #3a4a35; line-height: 1.85; margin-top: .6rem; }
+
+  @media (max-width: 768px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  }
+  @media (max-width: 480px) {
+    .grid-3 { grid-template-columns: 1fr; }
+    .hero-title { font-size: 1.8rem; }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="hero">
+  <p class="hero-eyebrow">桃園市 · 千塘之鄉</p>
+  <h1 class="hero-title">桃園<span>埤塘</span>巡禮</h1>
+  <p class="hero-sub">埤塘是桃園的靈魂。先民開鑿的數千口水塘，散布在桃園臺地上，孕育出獨特的生態景觀、農業文化與人文歷史。</p>
+</div>
+
+<div class="breadcrumb" id="breadcrumb">
+  <a onclick="goHome()">首頁</a>
+</div>
+
+<div id="main-content"></div>
+
+<script>
+// ============================================================
+//  埤塘資料
+// ============================================================
+const PONDS = [
+  {
+    id: "bade",
+    name: "八德埤塘",
+    tag: "生態公園",
+    desc: "桃園最大埤塘公園，生態豐富，有水鴨、蒼鷺悠遊其間。",
+    img: "https://raw.githubusercontent.com/11157140-bit/pic./f2e05b59cab6ecf9992225ea2ddd7d94d29edbb0/%E5%85%AB%E5%BE%B7%E5%9F%A4%E5%A1%98%E7%94%9F%E6%85%8B%E5%85%AC%E5%9C%92.jpg",
+    imgFallback: "#4a90b8",
+    groups: [
+      { num: 1, members: ["周怡君", "劉芳汝"],
+        link: "https://lumi-commits.github.io/lumi/",
+        intro: "" },
+      { num: 2, members: ["陳秉詩", "井上绚香"],
+        link: "https://11457134-sys.github.io/666/",
+        intro: "" },
+      { num: 3, members: ["蔡函容"],
+        link: "https://hanna960418.github.io/Bade-Pond/",
+        intro: "" }
+    ]
+  },
+  {
+    id: "huaxing",
+    name: "華興池生態埤塘",
+    tag: "生態埤塘",
+    desc: "充滿生機的生態埤塘，水鳥棲息，環境清幽。",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/20100913_Bade_Peitang_Ecological_Park_01.jpg/640px-20100913_Bade_Peitang_Ecological_Park_01.jpg",
+    imgFallback: "#6aab5a",
+    groups: [
+      { num: 1, members: ["謝宜宸", "蕭稚妍", "楊恩淇", "陳思妤"],
+        link: "https://gazmo-0924.github.io/hua_xin/",
+        intro: "" },
+      { num: 2, members: ["金玟廷", "呂庭瑄", "蔡卓娜"],
+        link: "https://bs02121116-crypto.github.io/Huaxing-pond/",
+        intro: "" }
+    ]
+  },
+  {
+    id: "xiacji",
+    name: "下厝埤",
+    tag: "農業水利",
+    desc: "傳統農業灌溉埤塘，見證桃園農耕文化的發展歷程。",
+    img: "",
+    imgFallback: "#7aab6a",
+    groups: [
+      { num: 1, members: ["彭羽彤", "沈芯穎"],
+        link: "https://melody960314-oss.github.io/pond/",
+        intro: "" },
+      { num: 2, members: ["劉沛穎", "廖晴儀"],
+        link: "https://kv19951997-alt.github.io/taoyuan-Xiachu-Pond/",
+        intro: "" }
+    ]
+  },
+  {
+    id: "egret",
+    name: "白鷺鷥埤塘",
+    tag: "賞鳥勝地",
+    desc: "白鷺鷥群聚棲息之地，是桃園著名的賞鳥熱點。",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Egretta_garzetta_32.jpg/640px-Egretta_garzetta_32.jpg",
+    imgFallback: "#9ab8c8",
+    groups: [
+      { num: 1, members: ["廖安妤"],
+        link: "https://11457146-sudo.github.io/11457146/",
+        intro: "" },
+      { num: 2, members: ["游小溱", "許庭瑜", "陳佑希"],
+        link: "https://chen22430670-create.github.io/blspondwww/",
+        intro: "" }
+    ]
+  },
+  {
+    id: "xiaoli",
+    name: "霄里大池",
+    tag: "歷史埤塘",
+    desc: "桃園第一座埤塘，有兩百多年歷史，孕育出「吃不完的霄里米」的豐饒傳說。",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Xiao-li_Da-chi.JPG/640px-Xiao-li_Da-chi.JPG",
+    imgFallback: "#7890a0",
+    groups: [
+      { num: 1, members: ["侯品希", "侯采伶"],
+        link: "https://houpinxihou.github.io/final-/",
+        intro: "" },
+      { num: 2, members: ["王韋喬"],
+        link: "https://11457143.github.io/xiaoli-dachi-pitangzhi/",
+        intro: "" },
+      { num: 3, members: ["陳欣妤", "劉麗敏", "陳怡廷"],
+        link: "https://eating-jpg.github.io/11457110/",
+        intro: "" }
+    ]
+  },
+  {
+    id: "ganjiabao",
+    name: "龍潭甘家堡",
+    tag: "人文景觀",
+    desc: "龍潭鄉間的人文埤塘，周邊保有傳統聚落風貌。",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Vernicia_fordii_2.jpg/640px-Vernicia_fordii_2.jpg",
+    imgFallback: "#a87848",
+    groups: [
+      { num: 1, members: ["胡善宥", "張恩豪", "沈紹瑜"],
+        link: "https://ssy-bit.github.io/11457145final/",
+        intro: "" },
+      { num: 2, members: ["管采絜", "林宥渝"],
+        link: "https://11457117-ui.github.io/ganjiabao-pond-website/",
+        intro: "" }
+    ]
+  },
+  {
+    id: "fuzhu",
+    name: "富竹賞鳥埤塘",
+    tag: "野鳥棲地",
+    desc: "富竹地區的賞鳥勝地，常駐小白鷺、夜鷺、紅冠水雞等鳥類。",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Nycticorax_nycticorax_-Pranburi_Forest_Park%2C_Prachuap_Khiri_Khan%2C_Thailand-8.jpg/640px-Nycticorax_nycticorax_-Pranburi_Forest_Park%2C_Prachuap_Khiri_Khan%2C_Thailand-8.jpg",
+    imgFallback: "#5a9870",
+    groups: [
+      { num: 1, members: ["林仟尋", "鄭宇睎", "甲氏莊", "范氏后"],
+        link: "https://cyh-beep.github.io/11457124/index.html",
+        intro: "" }
+    ]
+  },
+  {
+    id: "gaorong",
+    name: "高榮731號埤塘",
+    tag: "特色埤塘",
+    desc: "以編號著稱的特色埤塘，周邊農田景觀宜人，是桃園埤塘系統的縮影。",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Ischnura_senegalensis_mating_m.jpg/640px-Ischnura_senegalensis_mating_m.jpg",
+    imgFallback: "#7868a8",
+    groups: [
+      { num: 1, members: ["蔡益豪", "謝承翰", "彭鼎畯"],
+        link: "https://11457153-spec.github.io/0619/",
+        intro: "" },
+      { num: 2, members: ["莊宸漢", "陳沅甸", "周欣葦"],
+        link: "https://11457152-crypto.github.io/7414/",
+        intro: "" }
+    ]
+  },
+  {
+    id: "longtan",
+    name: "龍潭大池",
+    tag: "地標埤塘",
+    desc: "龍潭最著名的地標，池中有南天宮，斜張吊橋橫跨湖面，景色壯麗。",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Longtan_Lake.jpg/640px-Longtan_Lake.jpg",
+    imgFallback: "#3878a8",
+    groups: [
+      { num: 1, members: ["李芷嫻", "劉亞蓁", "張佳琪"],
+        link: "https://11457105-wq.github.io/hahahaha/",
+        intro: "" },
+      { num: 2, members: ["蔡偉頡", "楊竣珽", "羅懷宥", "黃喻澤"],
+        link: "https://s11457108-design.github.io/longtan-lake-site/",
+        intro: "" }
+    ]
+  }
+];
+
+// ============================================================
+//  工具函式
+// ============================================================
+function svgPlaceholder(color) {
+  const c = color;
+  return `<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" opacity=".35">
+    <ellipse cx="40" cy="54" rx="32" ry="11" fill="${c}"/>
+    <rect x="19" y="24" width="4" height="30" fill="${c}"/>
+    <polygon points="21,8 11,26 31,26" fill="${c}"/>
+    <rect x="50" y="30" width="4" height="24" fill="${c}"/>
+    <polygon points="52,16 42,32 62,32" fill="${c}"/>
+    <circle cx="61" cy="17" r="9" fill="white" opacity=".25"/>
+  </svg>`;
+}
+
+function imgTag(pond, cls="") {
+  if (pond.img) {
+    return `<img src="${pond.img}" alt="${pond.name}" class="${cls}"
+      onerror="this.outerHTML='${svgPlaceholder(pond.imgFallback).replace(/'/g,"&#39;").replace(/"/g,"&quot;")}'">`;
+  }
+  return svgPlaceholder(pond.imgFallback);
+}
+
+
+// ============================================================
+//  Wikimedia 圖片自動載入
+// ============================================================
+const WIKI_QUERIES = {
+  bade:      "https://raw.githubusercontent.com/11157140-bit/pic./f2e05b59cab6ecf9992225ea2ddd7d94d29edbb0/%E5%85%AB%E5%BE%B7%E5%9F%A4%E5%A1%98%E7%94%9F%E6%85%8B%E5%85%AC%E5%9C%92.jpg",
+  huaxing:   "桃園埤塘",
+  xiacji:    "桃園埤塘 灌溉",
+  egret:     "白鷺鷥 台灣",
+  xiaoli:    "霄裡大池",
+  ganjiabao: "龍潭甘家堡 桐花",
+  fuzhu:     "夜鷺 台灣 埤塘",
+  gaorong:   "桃園 埤塘 農田",
+  longtan:   "龍潭大池"
+};
+
+// Fetch Wikipedia page thumbnail for 八德埤塘
+async function fetchWikipediaThumb(zhTitle) {
+  try {
+    const url = `https://zh.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(zhTitle)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return data?.thumbnail?.source || data?.originalimage?.source || null;
+  } catch { return null; }
+}
+
+// Hardcoded verified Wikimedia image URLs (confirmed working)
+const VERIFIED_IMGS = {
+  bade:    "https://raw.githubusercontent.com/11157140-bit/pic./f2e05b59cab6ecf9992225ea2ddd7d94d29edbb0/%E5%85%AB%E5%BE%B7%E5%9F%A4%E5%A1%98%E7%94%9F%E6%85%8B%E5%85%AC%E5%9C%92.jpg",
+  xiaoli:  "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Xiao-li_Da-chi.JPG/640px-Xiao-li_Da-chi.JPG",
+  longtan: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Longtan_Lake.jpg/640px-Longtan_Lake.jpg",
+};
+
+// Wikimedia search API - fetch thumbnail for ponds without confirmed images
+async function fetchWikiImg(pondId, query) {
+  if (VERIFIED_IMGS[pondId]) return VERIFIED_IMGS[pondId];
+  try {
+    const url = `https://zh.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrnamespace=6&prop=imageinfo&iiprop=url&iiurlwidth=640&format=json&origin=*&gsrlimit=1`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const pages = data?.query?.pages;
+    if (!pages) return null;
+    const page = Object.values(pages)[0];
+    return page?.imageinfo?.[0]?.thumburl || null;
+  } catch { return null; }
+}
+
+// Also try Wikimedia Commons search
+async function fetchCommonsImg(query) {
+  try {
+    const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrnamespace=6&prop=imageinfo&iiprop=url&iiurlwidth=640&format=json&origin=*&gsrlimit=3`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const pages = data?.query?.pages;
+    if (!pages) return null;
+    // pick first jpg/jpeg
+    for (const p of Object.values(pages)) {
+      const u = p?.imageinfo?.[0]?.thumburl || "";
+      if (/\.(jpg|jpeg)/i.test(u)) return u;
+    }
+    return null;
+  } catch { return null; }
+}
+
+async function loadAllImages() {
+
+  for (const pond of PONDS) {
+    if (pond.img) continue; // already has image
+    const query = WIKI_QUERIES[pond.id];
+    if (!query) continue;
+    let img = await fetchCommonsImg(query);
+    if (!img) img = await fetchWikiImg(pond.id, query);
+    if (img) {
+      pond.img = img;
+      // update any visible card
+      document.querySelectorAll(`[data-pond-id="${pond.id}"] .card-img`).forEach(el => {
+        el.innerHTML = `<img src="${img}" alt="${pond.name}" style="width:100%;height:100%;object-fit:cover;">`;
+      });
+    }
+  }
+}
+
+// ============================================================
+//  畫面渲染
+// ============================================================
+function renderHome() {
+  document.getElementById("breadcrumb").innerHTML = `<a onclick="goHome()">首頁</a>`;
+  document.getElementById("main-content").innerHTML = `
+    <div class="grid-section">
+      <p class="section-label">點選埤塘卡片，探索各組介紹</p>
+      <div class="grid-3">
+        ${PONDS.map(p => `
+          <div class="card" data-pond-id="${p.id}" onclick="renderPond('${p.id}')">
+            <div class="card-body">
+              <div class="card-name">${p.name}</div>
+              <div class="card-desc">${p.desc}</div>
+              <span class="card-tag">${p.tag}</span>
+            </div>
+          </div>`).join("")}
+      </div>
+    </div>`;
+  window.scrollTo(0, 0);
+}
+
+function renderPond(id) {
+  const pond = PONDS.find(p => p.id === id);
+  document.getElementById("breadcrumb").innerHTML = `
+    <a onclick="goHome()">首頁</a>
+    <span class="sep">›</span>
+    <a onclick="renderPond('${id}')">${pond.name}</a>`;
+  document.getElementById("main-content").innerHTML = `
+    <div class="grid-section">
+      <button class="back-btn" onclick="goHome()">← 返回所有埤塘</button>
+      <div class="pond-header">
+        <div class="pond-header-info">
+          <span class="card-tag">${pond.tag}</span>
+          <div class="pond-header-name">${pond.name}</div>
+          <div class="pond-header-desc">${pond.desc}</div>
+        </div>
+      </div>
+      <p class="section-label">請選擇組別查看介紹</p>
+      <div class="grid-3">
+        ${pond.groups.map((g, i) => `
+          <div class="group-card" onclick="window.open('${g.link}', '_blank')">
+            <div class="group-card-body">
+              <span class="group-num">第 ${g.num} 組</span>
+              <div class="group-members">${g.members.join("、")}</div>
+              <div class="group-hint">點擊前往網站 →</div>
+            </div>
+          </div>`).join("")}
+      </div>
+    </div>`;
+  window.scrollTo(0, 0);
+}
+
+function renderGroup(pondId, groupIdx) {
+  const pond = PONDS.find(p => p.id === pondId);
+  const g = pond.groups[groupIdx];
+  const hasIntro = g.intro && g.intro.trim().length > 0;
+
+  document.getElementById("breadcrumb").innerHTML = `
+    <a onclick="goHome()">首頁</a>
+    <span class="sep">›</span>
+    <a onclick="renderPond('${pondId}')">${pond.name}</a>
+    <span class="sep">›</span>
+    <span>第 ${g.num} 組</span>`;
+
+  document.getElementById("main-content").innerHTML = `
+    <div class="detail-page">
+      <button class="back-btn" onclick="renderPond('${pondId}')">← 返回 ${pond.name}</button>
+
+      <span class="detail-pond-tag">${pond.tag}</span>
+      <div class="detail-title">${pond.name}</div>
+      <div class="detail-group-label">第 ${g.num} 組介紹</div>
+
+      <div class="detail-img">${imgTag(pond)}</div>
+
+      <div class="detail-members-box">
+        <div class="detail-members-label">組員</div>
+        <div class="detail-members-names">${g.members.join("　")}</div>
+      </div>
+
+      <div class="detail-intro-box">
+        <div class="detail-intro-label">埤塘介紹</div>
+        ${hasIntro
+          ? `<div class="group-intro">${g.intro}</div>`
+          : `<div class="intro-placeholder">（請在 HTML 中找到對應的 intro: "" 欄位，填入這一組的介紹文字）</div>`
+        }
+      </div>
+
+      ${g.link ? `
+      <a class="link-btn" href="${g.link}" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6.5 3.5H3A1.5 1.5 0 001.5 5v8A1.5 1.5 0 003 14.5h8A1.5 1.5 0 0012.5 13V9.5" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M9.5 1.5H14.5V6.5" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14.5 1.5L7.5 8.5" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        前往本組網站
+      </a>` : ""}
+    </div>`;
+  window.scrollTo(0, 0);
+}
+
+function goHome() { renderHome(); }
+
+renderHome();
+loadAllImages();
+</script>
+</body>
+</html>
